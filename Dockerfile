@@ -3,7 +3,7 @@ FROM openjdk:8-alpine
 # Setup useful environment variables
 ENV CONF_HOME     /var/atlassian/confluence
 ENV CONF_INSTALL  /opt/atlassian/confluence
-ENV CONF_VERSION  7.9.3
+ENV CONF_VERSION  7.16.0
 
 ENV JAVA_CACERTS  $JAVA_HOME/jre/lib/security/cacerts
 ENV CERTIFICATE   $CONF_HOME/certificate
@@ -61,3 +61,11 @@ ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # Run Atlassian Confluence as a foreground process by default.
 CMD ["/opt/atlassian/confluence/bin/start-confluence.sh", "-fg"]
+
+USER root
+
+# Add proxy unpacking to container
+COPY "atlassian-agent.jar" /opt/atlassian/confluence/
+
+# Set Startup Loading Agent Package
+RUN echo 'export CATALINA_OPTS="-javaagent:/opt/atlassian/confluence/atlassian-agent.jar ${CATALINA_OPTS}"' >> /opt/atlassian/confluence/bin/setenv.sh
